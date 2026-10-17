@@ -1,7 +1,7 @@
 {
     "id": "obsidian-spaced-repetition-callouts",
     "name": "Spaced Repetition (Callouts)",
-    "version": "1.15.4-callouts.1",
+    "version": "1.15.4-callouts.2",
     "minAppVersion": "1.2.8",
     "description": "Fork of Spaced Repetition with callout cards and a frontmatter deck property. Fight the forgetting curve by reviewing flashcards & entire notes using spaced repetition. Organize your flashcards into decks and learn only the cards you need to recall.",
     "author": "Stephen Mwangi",
