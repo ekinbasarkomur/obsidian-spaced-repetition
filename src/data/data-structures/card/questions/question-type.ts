@@ -92,6 +92,27 @@ class QuestionTypeMultiLineReversed implements IQuestionTypeHandler {
     }
 }
 
+// A callout card, e.g.
+//      > [!question]- Front of the card
+//      > Back of the card
+// If the body contains a line with only the multi line separator ("> ?"),
+// the body lines before it also belong to the front.
+class QuestionTypeCallout implements IQuestionTypeHandler {
+    expand(questionText: string, settings: SRSettings): CardFrontBack[] {
+        const lines = questionText.split("\n");
+        const title = lines[0].replace(/^>\s*\[![^\]]*\][+-]?\s*/, "");
+        const body = lines.slice(1).map((line) => line.replace(/^>\s?/, ""));
+
+        const separatorIdx = body.findIndex(
+            (line) => line.trim() === settings.multilineCardSeparator,
+        );
+        const frontLines = separatorIdx >= 0 ? [title, ...body.slice(0, separatorIdx)] : [title];
+        const backLines = separatorIdx >= 0 ? body.slice(separatorIdx + 1) : body;
+
+        return [new CardFrontBack(frontLines.join("\n").trim(), backLines.join("\n").trim())];
+    }
+}
+
 class QuestionTypeCloze implements IQuestionTypeHandler {
     expand(questionText: string, settings: SRSettings): CardFrontBack[] {
         const clozecrafter = new ClozeCrafter(settings.clozePatterns);
@@ -162,6 +183,9 @@ export class QuestionTypeFactory {
                 break;
             case CardType.Cloze:
                 handler = new QuestionTypeCloze();
+                break;
+            case CardType.Callout:
+                handler = new QuestionTypeCallout();
                 break;
         }
         return handler;

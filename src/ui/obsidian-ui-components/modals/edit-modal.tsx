@@ -262,6 +262,7 @@ export class FlashcardEditModal extends Modal {
             case CardType.MultiLineReversed:
                 return settings.multilineReversedCardSeparator;
             case CardType.Cloze:
+            case CardType.Callout:
                 return null;
         }
     }

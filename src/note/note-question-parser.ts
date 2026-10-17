@@ -24,6 +24,8 @@ export class NoteQuestionParser {
     settings: SRSettings;
     noteFile: ISRNoteTFile;
     folderTopicPath: TopicPath;
+    // The deck from the note's deck property (empty if the note doesn't have one)
+    deckPropertyTopicPath: TopicPath;
     noteText: string;
     frontmatterText: string;
 
@@ -56,12 +58,17 @@ export class NoteQuestionParser {
         onlyKeepQuestionsWithTopicPath: boolean,
     ): Promise<Question[]> {
         this.noteFile = noteFile;
+        this.deckPropertyTopicPath = TopicPath.getTopicPathFromDeckProperty(
+            noteFile,
+            this.settings,
+        );
         // For efficiency, we first get the tag list from the Obsidian cache
         // (this only gives the tag names, not the line numbers, but this is sufficient for this first step)
         const tagCacheList: string[] = noteFile.getAllTagsFromCache();
         const hasTopicPaths: boolean =
             tagCacheList.some((item) => SettingsUtil.isFlashcardTag(this.settings, item)) ||
-            folderTopicPath.hasPath;
+            folderTopicPath.hasPath ||
+            this.deckPropertyTopicPath.hasPath;
         if (hasTopicPaths) {
             // Reading the file is relatively an expensive operation, so we only do this when needed
             const noteText: string = await noteFile.read();
@@ -157,6 +164,7 @@ export class NoteQuestionParser {
             multilineReversedCardSeparator: settings.multilineReversedCardSeparator,
             multilineCardEndMarker: settings.multilineCardEndMarker,
             clozePatterns: settings.clozePatterns,
+            calloutCardTypes: settings.calloutCardTypes,
         };
 
         // We pass contentText which has the frontmatter blanked out; see extractFrontmatter for reasoning
@@ -337,7 +345,15 @@ export class NoteQuestionParser {
     // That could be either the tags within the note's frontmatter, or tags on lines within the note's content.
     private determineQuestionTopicPathList(question: Question): TopicPathList {
         let result: TopicPathList | null;
-        if (this.settings.convertFoldersToDecks) {
+        const questionTopicPath: TopicPath | undefined =
+            question.questionText.topicPathWithWs?.topicPath;
+        if (this.deckPropertyTopicPath?.hasPath) {
+            // The deck property applies to every question, unless a question has its own topic tag
+            result = new TopicPathList(
+                [questionTopicPath ?? this.deckPropertyTopicPath],
+                questionTopicPath ? question.parsedQuestionInfo.firstLineNum : null,
+            );
+        } else if (this.settings.convertFoldersToDecks) {
             result = new TopicPathList([this.folderTopicPath]);
         } else {
             // If present, the question specific TopicPath takes precedence over everything else

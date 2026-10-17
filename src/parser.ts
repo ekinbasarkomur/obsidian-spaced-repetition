@@ -12,6 +12,19 @@ export interface ParserOptions {
     multilineReversedCardSeparator: string;
     multilineCardEndMarker: string;
     clozePatterns: string[];
+    // Callout types (e.g. "question") whose callouts are parsed as whole cards:
+    // the callout title is the front, the callout body is the back
+    calloutCardTypes?: string[];
+}
+
+function escapeRegex(text: string): string {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function createCalloutCardRegex(calloutCardTypes: string[] | undefined): RegExp | null {
+    const types = (calloutCardTypes ?? []).map((t) => t.trim()).filter((t) => t.length > 0);
+    if (types.length === 0) return null;
+    return new RegExp(`^>\\s*\\[!(?:${types.map(escapeRegex).join("|")})\\][+-]?(?:\\s|$)`, "i");
 }
 
 export function setDebugParser(value: boolean) {
@@ -71,6 +84,17 @@ function hasInlineMarker(text: string, marker: string): boolean {
     return !markerInsideCodeBlock(text, marker, markerIdx);
 }
 
+// A callout without any body (besides scheduling info) is not a card
+function calloutHasBack(calloutLines: string[]): boolean {
+    return calloutLines.slice(1).some(
+        (line) =>
+            line
+                .replace(/^>\s?/, "")
+                .replace(/<!--SR:.*?-->/, "")
+                .trim().length > 0,
+    );
+}
+
 /**
  * Returns flashcards found in `text`
  *
@@ -99,6 +123,7 @@ export function parse(text: string, options: ParserOptions): ParsedQuestionInfo[
         lastLineNo: number;
 
     const clozecrafter = new ClozeCrafter(options.clozePatterns);
+    const calloutCardRegex: RegExp | null = createCalloutCardRegex(options.calloutCardTypes);
     const lines: string[] = text.replaceAll("\r\n", "\n").split("\n");
     for (let i = 0; i < lines.length; i++) {
         const currentLine = lines[i],
@@ -108,6 +133,36 @@ export function parse(text: string, options: ParserOptions): ParsedQuestionInfo[
         if (currentLine.startsWith("<!--") && !currentLine.startsWith("<!--SR:")) {
             while (i + 1 < lines.length && !currentLine.includes("-->")) i++;
             i++;
+            continue;
+        }
+
+        // Pick up callout cards: the whole callout block is one card
+        if (cardType === null && calloutCardRegex !== null && calloutCardRegex.test(currentLine)) {
+            let lastCalloutLine = i;
+            while (lastCalloutLine + 1 < lines.length && lines[lastCalloutLine + 1].startsWith(">"))
+                lastCalloutLine++;
+            // Scheduling info written directly below the callout also belongs to the card
+            if (
+                lastCalloutLine + 1 < lines.length &&
+                lines[lastCalloutLine + 1].startsWith("<!--SR:")
+            )
+                lastCalloutLine++;
+
+            const calloutLines = lines.slice(i, lastCalloutLine + 1).map((line) => line.trimEnd());
+            if (calloutHasBack(calloutLines)) {
+                cards.push(
+                    new ParsedQuestionInfo(
+                        CardType.Callout,
+                        calloutLines.join("\n"),
+                        i,
+                        lastCalloutLine,
+                    ),
+                );
+            }
+
+            i = lastCalloutLine;
+            cardText = "";
+            firstLineNo = i + 1;
             continue;
         }
 

@@ -1,5 +1,6 @@
 import { OBSIDIAN_TAG_AT_STARTOFLINE_REGEX } from "src/data/constants";
 import { ISRNoteTFile } from "src/data/data-structures/file/note-file";
+import { ISRFile } from "src/data/data-structures/file/sr-file";
 import { SRSettings } from "src/data/settings";
 
 export class TopicPath {
@@ -39,7 +40,31 @@ export class TopicPath {
         return result;
     }
 
+    // The deck given by the note's deck property (settings.deckProperty), e.g.
+    //      deck: Math/Complex Analysis/Polar Representation
+    // Each "/" starts a subdeck; there is no depth limit.
+    static getTopicPathFromDeckProperty(noteFile: ISRFile, settings: SRSettings): TopicPath {
+        const propertyName: string = settings.deckProperty?.trim();
+        if (!propertyName) return TopicPath.emptyPath;
+        const value: string | null = noteFile.getFrontmatterValue(propertyName);
+        if (!value) return TopicPath.emptyPath;
+        return TopicPath.getTopicPathFromDeckPath(value);
+    }
+
+    static getTopicPathFromDeckPath(deckPath: string): TopicPath {
+        const path: string[] = deckPath
+            .replace(/^#/, "")
+            .split("/")
+            .map((str) => str.trim())
+            .filter((str) => str);
+        return new TopicPath(path);
+    }
+
     static getTopicPathOfFile(noteFile: ISRNoteTFile, settings: SRSettings): TopicPath {
+        // A deck property takes precedence over folders and tags
+        const propertyTopicPath: TopicPath = this.getTopicPathFromDeckProperty(noteFile, settings);
+        if (propertyTopicPath.hasPath) return propertyTopicPath;
+
         let result: TopicPath = TopicPath.emptyPath;
         if (settings.convertFoldersToDecks) {
             const deckPath = noteFile.path.split("/");

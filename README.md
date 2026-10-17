@@ -12,6 +12,66 @@ Fight the forgetting curve by reviewing flashcards & notes using the FSRS or the
 - The plugin has been translated into _Arabic, Chinese, Czech, Dutch, French, German, Italian, Korean, Japanese, Polish, Portuguese, Spanish, Russian, Turkish, and Ukrainian_ by the Obsidian community 😄.
     - To help translate this plugin to your language, check the [translation guide here](https://stephenmwangi.com/obsidian-spaced-repetition/contributing/#translating_1).
 
+## Fork additions🔧
+
+This fork adds two features on top of upstream. Everything else works as in upstream, and existing cards and scheduling comments are read unchanged.
+
+> [!warning]
+> The fork has its own plugin id (`obsidian-spaced-repetition-callouts`), so the community store never overwrites it. Don't enable it together with the upstream plugin; both register the same views and commands.
+
+### Callout cards
+
+A callout of a card type (default: `question`) is a whole card: the callout **title is the front** and the **body is the back**. Collapsed callouts (`[!question]-`) keep the answer hidden while you read the note, and the same callout shows up in review.
+
+```markdown
+> [!question]- Why is the Sharpe ratio unaffected by leverage?
+> Leverage multiplies both the excess return and the volatility by the same factor.
+>
+> More explanation, lists, LaTeX, images…
+```
+
+When the front needs more than one line, put a line containing only the multi-line separator (`> ?` with the default settings) in the body. Everything above it is the front, everything below it is the back. Nested callouts work, e.g. a collapsed hint:
+
+```markdown
+> [!question]- **Exercise 1.** Map $z = 1 + i$ to the Riemann sphere.
+>
+> > [!hint]- Hint
+> > Compute $|z|^2$ first.
+> > ?
+> > $\left(\tfrac{2}{3}, \tfrac{2}{3}, \tfrac{1}{3}\right)$
+```
+
+- Type matching is case-insensitive; `[!question]`, `[!question]-` and `[!question]+` all work.
+- A callout without a body is not a card.
+- Scheduling info is written as the last line of the callout (`> <!--SR:!2026-10-25,3,250-->`). A scheduling comment directly below the callout is also read, and moved inside on the next review.
+- `::` or `?` inside a callout card don't create extra cards. Inline cards inside other callouts (e.g. `> [!note]`) still work as before.
+- Setting: **Callout card types** (space-separated, e.g. `question exercise`). Leave empty to disable.
+
+### Deck property
+
+A frontmatter property sets the deck of every card in the note. Each `/` opens a subdeck, with no depth limit:
+
+```yaml
+---
+deck: Math/Complex Analysis/Polar Representation/Euler Form
+---
+```
+
+- No `#flashcards` tag is needed; a note with a deck property is scanned for cards.
+- Precedence: a question-specific tag (`#flashcards/x Q::A`) > deck property > folders or note-level tags.
+- Whitespace around segments is trimmed: `Math / Complex Analysis` equals `Math/Complex Analysis`.
+- Setting: **Deck property** (default `deck`). Leave empty to disable.
+
+### Building and installing
+
+```sh
+pnpm install
+pnpm build          # type-check + bundle into build/
+pnpm test
+```
+
+Copy `build/main.js`, `manifest.json` and `styles.css` into `<vault>/.obsidian/plugins/obsidian-spaced-repetition-callouts/`, then enable the plugin in _Settings → Community plugins_. Cloning the source repository directly into the plugins folder does **not** work: Obsidian loads the bundled `main.js`, which only exists after a build.
+
 <br/>
 
 ## Features⚡
@@ -24,6 +84,7 @@ Fight the forgetting curve by reviewing flashcards & notes using the FSRS or the
     - [Single-line reversed style](https://stephenmwangi.com/obsidian-spaced-repetition/flashcards/q-and-a-cards/#single-line-bidirectional) (`Question:::Answer`)
     - [Multi-line style](https://stephenmwangi.com/obsidian-spaced-repetition/flashcards/q-and-a-cards/#multi-line-basic) (Separated by `?`)
     - [Multi-line reversed style](https://stephenmwangi.com/obsidian-spaced-repetition/flashcards/q-and-a-cards/#multi-line-bidirectional) (Separated by `??`)
+    - Callout cards (`> [!question]- Front` + body as back; fork addition, see above)
     - [Cloze cards](https://stephenmwangi.com/obsidian-spaced-repetition/flashcards/cloze-cards/) (`==highlight==` your cloze deletions!, `**bolded text**`, `{{text in curly braces}}`, or use custom cloze patterns)
     - Rich text support in flashcards (inherited from Obsidian)
         - Images, Audio, & Video
@@ -31,6 +92,7 @@ Fight the forgetting curve by reviewing flashcards & notes using the FSRS or the
         - Code syntax highlighting
         - Footnotes
 - [Organize Decks](https://stephenmwangi.com/obsidian-spaced-repetition/flashcards/decks/) (Using Obsidian's hierarchical tags or folder structure)
+    - Or a `deck:` frontmatter property with a path of any depth (fork addition, see above)
 - [Card context - automatic titles based on headings](https://stephenmwangi.com/obsidian-spaced-repetition/flashcards/reviewing/#context) (i.e. `Note title > Heading 1 > Subheading`)
 
 #### Reviewing Notes📄

@@ -22,6 +22,7 @@ export interface ISRFile {
     get basename(): string;
     get tfile(): TFile;
     getFrontmatter(): Promise<Map<string, string>>;
+    getFrontmatterValue(key: string): string | null;
     getAllTagsFromCache(): string[];
     getAllTagsFromText(): TagCache[];
     getTextDirection(): TextDirection;
@@ -105,6 +106,21 @@ export abstract class SRTFile implements ISRFile {
         }
 
         return result;
+    }
+
+    /**
+     * Gets a single frontmatter value from the file cache (the first item if the value is a list).
+     *
+     * @param {string} key - The frontmatter property name.
+     * @returns {string | null} - The value, or null if the property is missing or empty.
+     */
+    getFrontmatterValue(key: string): string | null {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const value: any = this.metadataCache.getFileCache(this.file)?.frontmatter?.[key];
+        const v = Array.isArray(value) ? value[0] : value;
+        if (v === undefined || v === null) return null;
+        const str = (v + "").trim();
+        return str.length > 0 ? str : null;
     }
 
     /**

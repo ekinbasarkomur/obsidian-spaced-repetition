@@ -122,6 +122,12 @@ const en: IBaseLocale = {
         "Enter tags separated by spaces or newlines. Notes containing any of these tags will be excluded from flashcard review.",
     CONVERT_FOLDERS_TO_DECKS: "Convert folders to decks and subdecks",
     CONVERT_FOLDERS_TO_DECKS_DESC: "This is an alternative to the Flashcard tags option above.",
+    DECK_PROPERTY: "Deck property",
+    DECK_PROPERTY_DESC:
+        'Frontmatter property that sets the deck of all cards in a note, e.g. "deck: Math/Complex Analysis/Polar Representation". Each "/" starts a subdeck. Takes precedence over folders and tags. Leave empty to disable.',
+    CALLOUT_CARD_TYPES: "Callout card types",
+    CALLOUT_CARD_TYPES_DESC:
+        'Callouts of these types are cards: the title is the front, the body is the back. A line with only the multi line separator in the body moves the lines above it to the front. Separate with spaces, e.g. "question exercise". Leave empty to disable.',
     INLINE_SCHEDULING_COMMENTS:
         "Save scheduling comment on the same line as the flashcard's last line?",
     INLINE_SCHEDULING_COMMENTS_DESC:

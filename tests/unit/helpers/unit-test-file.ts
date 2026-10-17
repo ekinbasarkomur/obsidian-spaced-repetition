@@ -130,6 +130,11 @@ export class UnitTestSRFile implements ISRNoteTFile {
         return unitTestBasicFrontmatterParser(await this.read());
     }
 
+    getFrontmatterValue(key: string): string | null {
+        const value = unitTestBasicFrontmatterParser(this.content).get(key);
+        return value?.trim() ? value.trim() : null;
+    }
+
     getAllTagsFromCache(): string[] {
         return unitTestGetAllTagsFromTextEx(this.content).map((item) => item.tag);
     }

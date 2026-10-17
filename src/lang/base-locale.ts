@@ -102,6 +102,10 @@ export interface IBaseLocale {
     FLASHCARD_TAGS_TO_IGNORE_DESC: string;
     CONVERT_FOLDERS_TO_DECKS: string;
     CONVERT_FOLDERS_TO_DECKS_DESC: string;
+    DECK_PROPERTY?: string;
+    DECK_PROPERTY_DESC?: string;
+    CALLOUT_CARD_TYPES?: string;
+    CALLOUT_CARD_TYPES_DESC?: string;
     INLINE_SCHEDULING_COMMENTS: string;
     INLINE_SCHEDULING_COMMENTS_DESC: string;
     BURY_SIBLINGS_TILL_NEXT_DAY: string;

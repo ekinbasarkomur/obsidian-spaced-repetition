@@ -22,6 +22,7 @@ export enum CardType {
     MultiLineBasic,
     MultiLineReversed,
     Cloze,
+    Callout,
 }
 
 // QuestionText comprises the following components:
@@ -127,8 +128,13 @@ export class QuestionText {
         original: string,
         textDirection: TextDirection,
         settings: SRSettings,
+        cardType: CardType | null = null,
     ): QuestionText {
-        const [topicPathWithWs, actualQuestion, blockId] = this.splitText(original, settings);
+        const [topicPathWithWs, actualQuestion, blockId] = this.splitText(
+            original,
+            settings,
+            cardType,
+        );
 
         return new QuestionText(original, topicPathWithWs, actualQuestion, textDirection, blockId);
     }
@@ -136,9 +142,17 @@ export class QuestionText {
     static splitText(
         original: string,
         settings: SRSettings,
+        cardType: CardType | null = null,
     ): [TopicPathWithWs | null, string, string] {
         const originalWithoutSR = DataStore.getInstance().removeScheduleInfo(original);
         let actualQuestion: string = originalWithoutSR.trimEnd();
+
+        if (cardType === CardType.Callout) {
+            // Removing the schedule leaves an empty "> " line at the end of the callout
+            actualQuestion = actualQuestion.replace(/(\n>\s*)+$/, "");
+            const [strippedQuestion, blockId] = this.extractObsidianBlockId(actualQuestion);
+            return [null, strippedQuestion, blockId];
+        }
 
         let topicPathWithWs: TopicPathWithWs | null = null;
 
@@ -232,6 +246,15 @@ export class Question {
         let result: string = this.questionText.formatTopicAndQuestion();
         const blockId: string = this.questionText.obsidianBlockId;
         const hasSchedule: boolean = this.cards.some((card) => card.hasSchedule);
+        if (this.parsedQuestionInfo?.cardType === CardType.Callout) {
+            // Callout cards keep their schedule inside the callout, as its last line
+            const scheduleHtml: string = hasSchedule
+                ? DataStoreAlgorithm.getInstance().questionFormatScheduleAsHtmlComment(this)
+                : "";
+            const lastLine = [scheduleHtml, blockId].filter((part) => part).join(" ");
+            if (lastLine) result = `${result.trimEnd()}\n> ${lastLine}`;
+            return result;
+        }
         if (hasSchedule) {
             result = result.trimEnd();
 
@@ -291,6 +314,7 @@ export class Question {
                 replacementText,
                 this.questionText.textDirection,
                 settings,
+                this.parsedQuestionInfo?.cardType,
             );
         } else {
             console.warn(
@@ -327,6 +351,7 @@ export class Question {
             parsedQuestionInfo.text,
             textDirection,
             settings,
+            parsedQuestionInfo.cardType,
         );
 
         let topicPathList: TopicPathList = noteTopicPathList;

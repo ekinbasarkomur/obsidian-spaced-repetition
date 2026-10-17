@@ -74,6 +74,38 @@ export class FlashcardsPage extends SettingsPage {
             })
             .addSetting((setting: Setting) => {
                 setting
+                    .setName(t("DECK_PROPERTY"))
+                    .setDesc(t("DECK_PROPERTY_DESC"))
+                    .addText((text) =>
+                        text
+                            .setValue(this.settingsManager.settings.deckProperty)
+                            .onChange((value) => {
+                                applySettingsUpdate(async () => {
+                                    this.settingsManager.settings.deckProperty = value.trim();
+                                    await this.settingsManager.save();
+                                });
+                            }),
+                    );
+            })
+            .addSetting((setting: Setting) => {
+                setting
+                    .setName(t("CALLOUT_CARD_TYPES"))
+                    .setDesc(t("CALLOUT_CARD_TYPES_DESC"))
+                    .addText((text) =>
+                        text
+                            .setValue(this.settingsManager.settings.calloutCardTypes.join(" "))
+                            .onChange((value) => {
+                                applySettingsUpdate(async () => {
+                                    this.settingsManager.settings.calloutCardTypes = value
+                                        .split(/\s+/)
+                                        .filter((type) => type);
+                                    await this.settingsManager.save();
+                                });
+                            }),
+                    );
+            })
+            .addSetting((setting: Setting) => {
+                setting
                     .setName(t("BURY_SIBLINGS_TILL_NEXT_DAY"))
                     .setDesc(t("BURY_SIBLINGS_TILL_NEXT_DAY_DESC"))
                     .addToggle((toggle) =>
