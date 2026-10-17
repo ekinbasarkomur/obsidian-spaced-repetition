@@ -6,7 +6,7 @@ on:
             - "*"
 
 env:
-    PLUGIN_NAME: obsidian-spaced-repetition
+    PLUGIN_NAME: obsidian-spaced-repetition-callouts
 
 jobs:
     release:
@@ -114,16 +114,3 @@ jobs:
                   asset_path: ./styles.css
                   asset_name: styles.css
                   asset_content_type: text/css
-
-            - name: Use Python
-              uses: actions/setup-python@v7
-              with:
-                  python-version: "3.14"
-
-            - name: Install dependencies
-              run: pip install -r requirements.txt
-
-            - name: Deploy the documentation
-              run: mkdocs gh-deploy --force --clean --verbose
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

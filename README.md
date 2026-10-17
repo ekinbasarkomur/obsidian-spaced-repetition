@@ -62,7 +62,15 @@ deck: Math/Complex Analysis/Polar Representation/Euler Form
 - Whitespace around segments is trimmed: `Math / Complex Analysis` equals `Math/Complex Analysis`.
 - Setting: **Deck property** (default `deck`). Leave empty to disable.
 
-### Building and installing
+### Installing
+
+Download `main.js`, `manifest.json` and `styles.css` from the [latest release](https://github.com/ekinbasarkomur/obsidian-spaced-repetition/releases/latest) into `<vault>/.obsidian/plugins/obsidian-spaced-repetition-callouts/`, then enable **Spaced Repetition (Callouts)** in _Settings → Community plugins_.
+
+With [BRAT](https://github.com/TfTHacker/obsidian42-brat), add the beta plugin `ekinbasarkomur/obsidian-spaced-repetition` instead and it keeps the plugin updated.
+
+Releases are built by `.github/workflows/release.yml` when a tag is pushed. The tag must equal the `version` in `manifest.json`.
+
+### Building from source
 
 ```sh
 pnpm install
