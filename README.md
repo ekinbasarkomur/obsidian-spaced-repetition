@@ -68,7 +68,14 @@ Download `main.js`, `manifest.json` and `styles.css` from the [latest release](h
 
 With [BRAT](https://github.com/TfTHacker/obsidian42-brat), add the beta plugin `ekinbasarkomur/obsidian-spaced-repetition` instead and it keeps the plugin updated.
 
-Releases are built by `.github/workflows/release.yml` when a tag is pushed. The tag must equal the `version` in `manifest.json`.
+To publish a release: add a section for the new version at the top of `docs/docs/changelog.md` (the release notes are taken from it), commit, then
+
+```sh
+npm version 1.15.4-callouts.2   # bumps package.json, manifest.json, versions.json; commits and tags
+git push --follow-tags
+```
+
+`.github/workflows/release.yml` builds the plugin for the pushed tag and attaches `main.js`, `manifest.json`, `styles.css` and a zip to the release. On a fork, Actions must be enabled once in the repository's Actions tab.
 
 ### Building from source
 
