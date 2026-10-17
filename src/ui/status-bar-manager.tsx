@@ -195,7 +195,7 @@ export default class StatusBarManager {
     private async getNewestVersion(): Promise<string> {
         try {
             const response: string = await request({
-                url: "https://api.github.com/repos/st3v3nmw/obsidian-spaced-repetition/releases/latest",
+                url: "https://api.github.com/repos/ekinbasarkomur/obsidian-spaced-repetition/releases/latest",
             });
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             return (await JSON.parse(response)).tag_name as string;

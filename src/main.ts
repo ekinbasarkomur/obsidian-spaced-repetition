@@ -10,6 +10,7 @@ import { LocaleManagerInstance } from "src/lang/locale-manager";
 import { NextNoteReviewHandler } from "src/note/next-note-review-handler";
 import { NoteReviewQueue } from "src/note/note-review-queue";
 import { ReminderManager } from "src/scheduling/reminder-manager";
+import { renderCalloutCardSeparators } from "src/ui/callout-card-separator";
 import { REVIEW_QUEUE_VIEW_TYPE } from "src/ui/obsidian-ui-components/item-views/review-queue-list-view";
 import { UIManager } from "src/ui/ui-manager";
 import { TextDirection } from "src/utils/strings";
@@ -37,6 +38,14 @@ export default class SRPlugin extends Plugin {
             );
 
             this.dataManager = new DataManager(this, pluginDataManager, settingsManager);
+
+            this.registerMarkdownPostProcessor((el) => {
+                renderCalloutCardSeparators(
+                    el,
+                    settingsManager.settings.calloutCardTypes,
+                    settingsManager.settings.multilineCardSeparator,
+                );
+            });
             const uiManager = new UIManager(this, settingsManager);
             this.uiManager = uiManager;
             this.commandManager = new CommandManager(this, settingsManager, uiManager);

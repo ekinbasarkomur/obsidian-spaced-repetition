@@ -118,6 +118,10 @@
   width: 100%;
   height: 100%;
 }
+.callout .sr-callout-card-separator {
+  margin: var(--size-4-2) 0;
+  border-color: var(--background-modifier-border);
+}
 
 /* src/ui/obsidian-ui-components/item-views/tab-view.css */
 .sr-tab-view {
@@ -669,6 +673,7 @@ body:not(.is-mobile)
   padding: 0;
 }
 #sr-modal-view .modal-close-button,
+#sr-modal-view > .modal-header-button,
 #sr-modal-view .modal-header {
   display: none;
 }
