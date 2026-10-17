@@ -37,10 +37,13 @@ When the front needs more than one line, put a line containing only the multi-li
 >
 > > [!hint]- Hint
 > > Compute $|z|^2$ first.
-> > ?
-> > $\left(\tfrac{2}{3}, \tfrac{2}{3}, \tfrac{1}{3}\right)$
+>
+> ?
+> $\left(\tfrac{2}{3}, \tfrac{2}{3}, \tfrac{1}{3}\right)$
 ```
 
+- After a nested callout, leave an empty `>` line before `> ?`. Otherwise markdown's lazy continuation pulls the separator into the nested callout when the note is rendered (the card itself still parses).
+- In the note view the separator line is rendered as a divider instead of a lone `?`.
 - Type matching is case-insensitive; `[!question]`, `[!question]-` and `[!question]+` all work.
 - A callout without a body is not a card.
 - Scheduling info is written as the last line of the callout (`> <!--SR:!2026-10-25,3,250-->`). A scheduling comment directly below the callout is also read, and moved inside on the next review.
